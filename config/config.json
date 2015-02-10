@@ -9,6 +9,13 @@
       "maxAge":null
     }
   },
+  "mysqlConnection":{
+    "port": "3306",
+    "host": "localhost",
+    "user": "root",
+    "password": "aambfi5y",
+    "database": "cfft"
+  },
   "mail":{
     "mailTransport":{
       "service": "Gmail",

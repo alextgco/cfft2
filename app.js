@@ -4,9 +4,16 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-/*var session = require('express-session');
-var config = require('./config');*/
+var session = require('express-session');
+var SessionStore = require('express-mysql-session');
+var config = require('./config');
 var app = express();
+global.pool = require('./libs/mysqlConnect');
+process.on('exit', function(code) {
+    pool.end();
+});
+
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -19,16 +26,35 @@ var HttpError = require('./error').HttpError;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+//var options = config.get('mysqlConnection');
+var options = {
+    host: 'localhost',
+    port: 3306,
+    user: 'root',
+    password: 'aambfi5y',
+    database: 'cfft',
+    createDatabaseTable:true
+};
+
+var sessionStore = new SessionStore(options);
+
+app.use(session({
+    secret: config.get('session:secret'),
+    key: config.get('session:key'),
+    cookie: config.get('session:cookie'),
+    store: sessionStore,
+    resave: true,
+    saveUninitialized: true
+}));
+
 app.use(require('./middleware/sendHttpError'));
 //app.use(require('./middleware/loadUser'));
 require('./routes')(app);
 app.use(express.static(path.join(__dirname, 'public')));
 
-/*app.use(session({
-    secret: config.get('session:secret'),
-    key: config.get('session:key'),
-    cookie: config.get('session:cookie')
-}));*/
+
+
 
 //app.use('/', routes);
 
